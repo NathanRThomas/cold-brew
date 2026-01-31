@@ -1,0 +1,10 @@
+{
+    "ApiUrl": "http://192.168.56.71:8080",
+    "coldbrew": {
+        "IP": "127.0.0.1",
+        "Database": "coldbrew",
+        "User": "coldbrewu",
+        "Password": ""
+    },
+    "AdminToken": ""
+}
