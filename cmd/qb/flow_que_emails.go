@@ -33,6 +33,8 @@ func (this *flowQueEmails) textWarmup (ctx context.Context, mailman *postgres.Ma
 	users, err := this.db.UsersFromMask (ctx, postgres.UserMask_warmup)
 	if err != nil { return err }
 
+	if len(users) < 5 { return errors.Errorf("no enough warmup users. use at least 5") }
+
 	// for this we que all of them up, 1 hour apart
 	// let's find our warmup template
 	templates, err := this.db.TemplateList (ctx)
