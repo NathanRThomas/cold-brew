@@ -48,3 +48,9 @@ run-qb: build-qb
 run-qb:
 	@coldBrew-qb -p 8081
 
+# for deploying on the vms
+deploy: build
+deploy:
+	systemctl restart coldbrew
+	systemctl restart coldbrewqb
+	

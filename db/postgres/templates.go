@@ -73,7 +73,7 @@ func (this *Coldbrew) Template (ctx context.Context, templateId *uuid.UUID) (*Te
 func (this *Coldbrew) TemplateList (ctx context.Context) ([]*Template, error) {
 	
 	rows, err := this.DB.Query (ctx, `SELECT id, body_html, body_text, subject, preview_text, attr, mask
-								FROM templates WHERE mask & $1 == 0`, 
+								FROM templates WHERE mask & $1 = 0`, 
 								TemplateMask_deleted | TemplateMask_paused)
 	if err != nil { return nil, errors.WithStack(err) }
 	defer rows.Close()

@@ -49,8 +49,3 @@ CREATE TABLE emails (
 CREATE INDEX idx_emails_message_id ON emails (message_id);
 CREATE INDEX idx_emails_target_time ON emails (target_time);
 CREATE INDEX idx_emails_sent_time ON emails (sent_time);
-
--- INSERTS 
-
-INSERT INTO templates (id, body_text, body_html, subject, preview_text, mask) VALUES 
-('019c0b0d-84d9-7a41-bbd2-5f90adeda678', 'warmup.txt', 'warmup.html', 'ColdBrew warmup email', 'Please help build your reputation', 4);
