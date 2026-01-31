@@ -88,6 +88,17 @@ func (this *Coldbrew) User (ctx context.Context, userId *uuid.UUID) (*User, erro
 	return user, errors.WithStack(err)
 }
 
+func (this *Coldbrew) UserInsert (ctx context.Context, warmup bool, email tools.String) error {
+	user := &User {
+		Email: email,
+	}
+	user.init()
+	if warmup { user.Mask |= UserMask_warmup }
+
+	return this.Exec (ctx, nil, `INSERT INTO users (id, email, token, mask) VALUES ($1, $2, $3, $4)`,
+						user.Id, user.Email, user.Token, user.Mask)
+}
+
 // finds the user based on their bearer token
 func (this *Coldbrew) UserFromBearer (ctx context.Context, bearer tools.String) (*User, error) {
 	var exists *uuid.UUID

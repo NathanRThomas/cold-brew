@@ -73,6 +73,14 @@ func (this *String) Email () bool {
 	m, _ := regexp.MatchString (`^.+@.+\..+$`, email) // very generous email check
 	if m {
 		this.Set(email)
+
+		// now let's get a little more picky
+		gmail, _ := regexp.MatchString (`^.*@gmail.com$`, email)
+		if gmail {
+			// make sure it's got at least 6 characters before the gmail
+			if this.Len() < 6 + 10 { return false }
+		}
+
 		return true 
 	}
 	return false

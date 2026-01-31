@@ -27,6 +27,12 @@ func (this *userPutRequest) ValidInput () error {
 		return errors.Wrap (logging.ErrReturnToUser, "no emails found")
 	}
 
+	for _, email := range this.Emails {
+		if email.Email() == false {
+			return errors.Wrapf (logging.ErrReturnToUser, "Email '%s' appears invalid", email)
+		}
+	}
+
 	return nil // we're good
 }
 
@@ -39,14 +45,12 @@ func (this *app) userPut (c *fiber.Ctx) error {
 	ctx, cancel := handlerCtx()
 	defer cancel()
 	
-	// user := c.Locals(userCtxKey).(*postgres.User)
-
 	data := &userPutRequest{}
 	if this.ValidateInput (ctx,c, data) == false {
 		return nil
 	}
 
-	// resp, err := this.api.UpdateUser (ctx, user, data.FirstName, data.LastName, data.Timezone)
+	resp, err := this.api.AddUsers (ctx, data.Warmup, data.Emails)
 
-	return this.Respond (ctx, nil, c, nil)
+	return this.Respond (ctx, err, c, resp)
 }
