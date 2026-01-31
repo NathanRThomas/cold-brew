@@ -64,7 +64,7 @@ func (this *Coldbrew) Mailman (ctx context.Context, mailmanId *uuid.UUID) (*Mail
 // lists all the non-paused mailman
 func (this *Coldbrew) MailmanList (ctx context.Context) ([]*Mailman, error) {
 	
-	rows, err := this.DB.Query (ctx, `SELECT id, attr, mask FROM mailmen WHERE mask & $1 == 0`, 
+	rows, err := this.DB.Query (ctx, `SELECT id, attr, mask FROM mailmen WHERE mask & $1 = 0`, 
 								MailmanMask_deleted | MailmanMask_paused)
 	if err != nil { return nil, errors.WithStack(err) }
 	defer rows.Close()
