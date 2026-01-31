@@ -31,8 +31,13 @@ const (
 	EmailStatus_delivered	= EmailStatus("delivered")
 	EmailStatus_deferred	= EmailStatus("deferred")
 	EmailStatus_dropped		= EmailStatus("dropped")
-	EmailStatus_bounced		= EmailStatus("bounced")
+	EmailStatus_bounce		= EmailStatus("bounce")
 	EmailStatus_blocked		= EmailStatus("blocked")
+	EmailStatus_open		= EmailStatus("open")
+	EmailStatus_click		= EmailStatus("click")
+	EmailStatus_spamreport	= EmailStatus("spamreport")
+	EmailStatus_unsubscribe	= EmailStatus("unsubscribe")
+	EmailStatus_groupUnsub	= EmailStatus("group_unsubscribe")
 )
 
   //-----------------------------------------------------------------------------------------------------------------------//
@@ -58,6 +63,13 @@ func (this *Email) CacheTime () tools.TimeDuration {
   //-----------------------------------------------------------------------------------------------------------------------//
  //----- FUNCTIONS -------------------------------------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------------------//
+
+func (this *Coldbrew) emailSetStatus (ctx context.Context, email *Email, status EmailStatus) error {
+	if email.Status == status { return nil } // we're good
+
+	email.Status = status // update in real time
+	return this.Exec (ctx, nil, `UPDATE emails SET status = $2 WHERE id = $1`, email.Id, status)
+}
 
 // lists all the non-paused emails
 func (this *Coldbrew) EmailInsert (ctx context.Context, email *Email) error {
@@ -88,4 +100,69 @@ func (this *Coldbrew) EmailsToSend (ctx context.Context) (*Email, error) {
 // marks the email as being sent
 func (this *Coldbrew) EmailSent (ctx context.Context, emailId *uuid.UUID) error {
 	return this.Exec (ctx, nil, `UPDATE emails SET sent_time = NOW() WHERE id = $1`, emailId)
+}
+
+func (this *Coldbrew) EmailUpdateStatus (ctx context.Context, messageId string, status EmailStatus) error {
+	email := &Email{}
+	err := this.DB.QueryRow (ctx, `SELECT id, status FROM emails WHERE message_id = $1`, 
+								messageId).Scan(&email.Id, &email.Status)
+	if this.ErrNoRows (err) { return nil } // no big deal
+	if err != nil { return err } // another error happened
+
+	// this have a specific priority
+	if status == EmailStatus_spamreport {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_spamreport {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_unsubscribe {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_unsubscribe {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_groupUnsub {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_groupUnsub {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_dropped {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_dropped {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_click {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_click {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_open {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_open {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_delivered {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_delivered {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_deferred {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_deferred {
+		return nil // we're done
+	}
+
+	if status == EmailStatus_processed {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_processed {
+		return nil // we're done
+	}
+
+	return errors.Errorf("uknown email status: %s", status)
 }

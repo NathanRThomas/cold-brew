@@ -31,14 +31,16 @@ const (
 
 	UserMask_open
 	UserMask_click
-	UserMask_bounced
+	UserMask_dropped
 	UserMask_failed
 
 	UserMask_unsubscribe
-	
+	UserMask_deferred
+	UserMask_bounce
+	UserMask_spam
 )
 
-const UserMask_doNotEmail = UserMask_deleted | UserMask_unsubscribe | UserMask_failed | UserMask_bounced
+const UserMask_doNotEmail = UserMask_deleted | UserMask_unsubscribe | UserMask_failed | UserMask_dropped | UserMask_bounce | UserMask_spam
 
   //-----------------------------------------------------------------------------------------------------------------------//
  //----- STRUCTS ---------------------------------------------------------------------------------------------------------//
@@ -155,3 +157,43 @@ func (this *Coldbrew) UsersMissing (ctx context.Context) ([]*User, error) {
 	return ret, nil
 }
 
+// from our webhooks this updates our email status
+// this might not match what's in this database, if not, then ignore it
+func (this *Coldbrew) UserUpdateStatus (ctx context.Context, email string, status string) error {
+	user := &User{}
+	err := this.DB.QueryRow (ctx, `SELECT id, mask FROM users WHERE email = $1`, email).Scan(&user.Id, &user.Mask)
+	if this.ErrNoRows (err) { return nil } // no big deal
+	if err != nil { return err } // another error happened
+
+	// we have a user, let's update them
+	switch EmailStatus(status) {
+	case EmailStatus_processed:
+		// don't worry about this one
+	case EmailStatus_delivered:
+		return this.UserSetMask (ctx, user, UserMask_delivered)
+
+	case EmailStatus_deferred:
+		// i'm not sure what to do with this info actually
+		return this.UserSetMask (ctx, user, UserMask_deferred)
+
+	case EmailStatus_open:
+		return this.UserSetMask (ctx, user, UserMask_open)
+
+	case EmailStatus_click:
+		return this.UserSetMask (ctx, user, UserMask_click)
+
+	case EmailStatus_dropped:
+		return this.UserSetMask (ctx, user, UserMask_dropped)
+
+	case EmailStatus_bounce:
+		return this.UserSetMask (ctx, user, UserMask_bounce)
+
+	case EmailStatus_spamreport:
+		return this.UserSetMask (ctx, user, UserMask_spam)
+
+	case EmailStatus_unsubscribe, EmailStatus_groupUnsub:
+		return this.UserSetMask (ctx, user, UserMask_unsubscribe)
+	}
+
+	return errors.Errorf("uknown email status: %s", status)
+}
