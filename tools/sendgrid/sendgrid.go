@@ -88,7 +88,7 @@ func SendEmail (apiToken, email, category, subject, textBody, htmlBody, pool, fr
 			Value: textBody,
 		})
 	}
-	if len(textBody) > 0 {
+	if len(htmlBody) > 0 {
 		req.Content = append (req.Content, sendgridContent {
 			Type: "text/html",
 			Value: htmlBody,
