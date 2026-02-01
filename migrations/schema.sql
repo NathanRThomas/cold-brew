@@ -41,7 +41,7 @@ CREATE TABLE emails (
     template        UUID NOT NULL REFERENCES templates (id) ON DELETE CASCADE,
     "user"          UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
     status          TEXT NOT NULL,
-    message_id      TEXT NOT NULL,
+    message_id      TEXT NOT NULL DEFAULT '',
     mask            INT NOT NULL DEFAULT 0,
     created         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

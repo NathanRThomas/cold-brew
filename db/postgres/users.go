@@ -95,8 +95,10 @@ func (this *Coldbrew) UserInsert (ctx context.Context, warmup bool, email tools.
 	user.init()
 	if warmup { user.Mask |= UserMask_warmup }
 
-	return this.Exec (ctx, nil, `INSERT INTO users (id, email, token, mask) VALUES ($1, $2, $3, $4)`,
+	err := this.Exec (ctx, nil, `INSERT INTO users (id, email, token, mask) VALUES ($1, $2, $3, $4)`,
 						user.Id, user.Email, user.Token, user.Mask)
+	if this.ErrUniqueConstraint (err) { return nil } // don't record this error
+	return err
 }
 
 // finds the user based on their bearer token

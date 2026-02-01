@@ -75,9 +75,9 @@ func (this *Coldbrew) emailSetStatus (ctx context.Context, email *Email, status 
 func (this *Coldbrew) EmailInsert (ctx context.Context, email *Email) error {
 	email.SetPK()
 
-	return this.Exec (ctx, nil, `INSERT INTO emails (id, target_time, mailman, template, "user", status) 
-									VALUES ($1, $2, $3, $4, $5, $6)`, email.Id, email.Target, 
-									email.Mailman, email.Template, email.User, email.Status)
+	return this.Exec (ctx, nil, `INSERT INTO emails (id, target_time, mailman, template, "user", status, message_id) 
+									VALUES ($1, $2, $3, $4, $5, $6, $7)`, email.Id, email.Target, 
+									email.Mailman, email.Template, email.User, email.Status, email.MessageId)
 }
 
 // quick check for future scheduled emails for a mailman
