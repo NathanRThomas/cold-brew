@@ -13,6 +13,8 @@ import (
 	"github.com/pkg/errors"
 	
 	"context"
+	"time"
+	"strings"
 )
 
   //-----------------------------------------------------------------------------------------------------------------------//
@@ -53,6 +55,15 @@ func (this *Template) GenerateTextBody () (string, error) {
 
 func (this *Template) GenerateHTMLBody () (string, error) {
 	return tools.GenText ("email", this.Html.String(), nil)
+}
+
+func (this *Template) GenerateSubject () string {
+	// some default things
+	shortDate := time.Now().Format("Jan 1")
+
+	subject := strings.ReplaceAll (this.Subject.String(), "{{ ShortDate }}", shortDate)
+
+	return subject
 }
 
   //-----------------------------------------------------------------------------------------------------------------------//

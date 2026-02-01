@@ -64,7 +64,7 @@ func (this *flowEmailSend) emails (ctx context.Context) error {
 	// we're finally ready to send this
 	go func() { // this creates its own context, so just go with that
 		err := sendgrid.SendEmail (mailman.Attr.APIToken.String(), user.Email.String(), mailman.Attr.Category.String(),
-			template.Subject.String(), textBody, htmlBody, mailman.Attr.IpPool.String(), mailman.Attr.FromEmail.String(),
+			template.GenerateSubject(), textBody, htmlBody, mailman.Attr.IpPool.String(), mailman.Attr.FromEmail.String(),
 			mailman.Attr.FromName.String(), mailman.Attr.ReplyName.String(), mailman.Attr.ReplyEmail.String())
 		if err != nil {
 			this.StackTrace (ctx, err) // record this
