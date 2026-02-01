@@ -49,12 +49,20 @@ func (this *Template) CacheTime () tools.TimeDuration {
 	return tools.TimeDuration(600) // this can cache for a while
 }
 
-func (this *Template) GenerateTextBody () (string, error) {
-	return tools.GenText ("email", this.Body.String(), nil)
+func (this *Template) GenerateTextBody (baseUrl string, user *User) (string, error) {
+	data := make(map[string]string)
+	data["BaseUrl"] = baseUrl
+	data["UserToken"] = user.Token.String()
+
+	return tools.GenText ("email", this.Body.String(), data)
 }
 
-func (this *Template) GenerateHTMLBody () (string, error) {
-	return tools.GenText ("email", this.Html.String(), nil)
+func (this *Template) GenerateHTMLBody (baseUrl string, user *User) (string, error) {
+	data := make(map[string]string)
+	data["BaseUrl"] = baseUrl
+	data["UserToken"] = user.Token.String()
+
+	return tools.GenText ("email", this.Html.String(), data)
 }
 
 func (this *Template) GenerateSubject () string {

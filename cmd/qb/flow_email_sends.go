@@ -49,11 +49,11 @@ func (this *flowEmailSend) emails (ctx context.Context) error {
 
 	// we have what we need, let's generate the text
 	htmlBody := ""
-	textBody, err := template.GenerateTextBody()
+	textBody, err := template.GenerateTextBody(cfg.ApiUrl, user)
 	if err != nil { return err }
 
 	if mailman.Mask & postgres.MailmanMask_htmlWarm > 0 { // only include this if we're warmed up
-		body, err := template.GenerateHTMLBody()
+		body, err := template.GenerateHTMLBody(cfg.ApiUrl, user)
 		if err != nil { return err }
 		htmlBody = body // copy this over
 	}

@@ -36,7 +36,7 @@ var (
 type CFG struct {
 	Port string
 	Production bool 
-	ApiUrl string
+	ApiUrl, ServiceName string
 	Coldbrew db.SqlCFG
 }
 

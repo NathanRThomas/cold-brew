@@ -57,6 +57,9 @@ func (this *app) routes () *fiber.App {
 	// sendgrid event callbacks
 	app.Post("/sendgrid", this.sendgridPost)
 
+	app.Get("/unsubscribe/:token", this.unsubscribeGet)
+	app.Put("/unsubscribe/:token", this.unsubscribePut)
+
 // Bearer Stuff
 	// users
 	app.Put("/user", this.bearer, this.userPut)
