@@ -44,7 +44,7 @@ func (this mailmanPerformances) duration () time.Duration {
     if len(this) < 2 { return time.Hour } // we don't have any data, so send them once an hour
 
     days := int(this[0].Sent.Sub(this[len(this)-1].Sent).Hours()) / 24 // covner this difference into days
-    fmt.Println("mailman pefromance: days", days)
+    fmt.Println("mailman performance: days", days)
 
     if days < 5 { return time.Hour } // less than 5 days, don't increase it
 
@@ -60,7 +60,7 @@ func (this mailmanPerformances) duration () time.Duration {
     good := 0
     for _, mp := range this {
         switch mp.Status {
-        case EmailStatus_processed:
+        case EmailStatus_processed, "":
             sends += mp.Cnt 
 
         case EmailStatus_delivered: // this is good
