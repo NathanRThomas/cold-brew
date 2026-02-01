@@ -114,7 +114,7 @@ func (this *Coldbrew) EmailUpdateStatus (ctx context.Context, userEmail tools.St
 
 		// we found them, now look for their last email
 		err = this.DB.QueryRow (ctx, `SELECT id, status, message_id FROM emails 
-								WHERE "user" = $1 ORDER BY created DESC LIMIT 1`, 
+								WHERE "user" = $1 ORDER BY sent_time DESC LIMIT 1`, 
 								user.Id).Scan(&email.Id, &email.Status, &email.MessageId)
 		if this.ErrNoRows (err) { 
 			return errors.Errorf("got a webhook about an email we've never messaged : %s : %s", email, messageId)
