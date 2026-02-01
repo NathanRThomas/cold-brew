@@ -10,8 +10,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	json "github.com/json-iterator/go"
-
-	"fmt"
 )
 
   //-----------------------------------------------------------------------------------------------------------------------//
@@ -43,7 +41,7 @@ func (this *app) sendgridPost (c *fiber.Ctx) error {
 	
 	// record the body so we can debug
 	bodyBytes := c.Body()
-	fmt.Println("sendgridPost", string(bodyBytes))
+	// fmt.Println("sendgridPost", string(bodyBytes))
 
 	err := json.Unmarshal (bodyBytes, &data)
 	if err != nil {

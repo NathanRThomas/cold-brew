@@ -79,6 +79,7 @@ func SendEmail (apiToken, email, category, subject, textBody, htmlBody, pool, fr
 	req.Pool = pool
 	req.Subject = subject
 	req.Tracking.Open.Enable = true 
+	req.Tracking.Click.Enable = true 
 	req.Categories = append (req.Categories, category)
 
 	if len(textBody) > 0 {
