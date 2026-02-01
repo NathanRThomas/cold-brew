@@ -41,7 +41,7 @@ func (this *app) unsubscribeGet (c *fiber.Ctx) error {
 		return this.RespondError (ctx, nil, c, http.StatusNotFound, "") // not a user
 	}
 
-	return c.Render ("deep_link", fiber.Map {
+	return c.Render ("unsubscribe", fiber.Map {
 		"ServiceName": cfg.ServiceName,
 		"BaseUrl": cfg.ApiUrl,
 		"UserToken": token.String(),
