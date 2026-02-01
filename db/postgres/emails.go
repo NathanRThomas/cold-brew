@@ -102,12 +102,38 @@ func (this *Coldbrew) EmailSent (ctx context.Context, emailId *uuid.UUID) error 
 	return this.Exec (ctx, nil, `UPDATE emails SET sent_time = NOW() WHERE id = $1`, emailId)
 }
 
-func (this *Coldbrew) EmailUpdateStatus (ctx context.Context, messageId string, status EmailStatus) error {
+func (this *Coldbrew) EmailUpdateStatus (ctx context.Context, userEmail tools.String, messageId string, status EmailStatus) error {
 	email := &Email{}
 	err := this.DB.QueryRow (ctx, `SELECT id, status FROM emails WHERE message_id = $1`, 
 								messageId).Scan(&email.Id, &email.Status)
-	if this.ErrNoRows (err) { return nil } // no big deal
-	if err != nil { return err } // another error happened
+	if this.ErrNoRows (err) { 
+		// this is ok, and expected as we don't have the message id right away
+		// get this user from their email, and look for the last email sent to them that has no message id
+		user, err := this.UserFromEmail (ctx, userEmail)
+		if user == nil || err != nil { return err } // ignore, we couldn't find them
+
+		// we found them, now look for their last email
+		err = this.DB.QueryRow (ctx, `SELECT id, status, message_id FROM emails 
+								WHERE "user" = $1 ORDER BY created DESC LIMIT 1`, 
+								user.Id).Scan(&email.Id, &email.Status, &email.MessageId)
+		if this.ErrNoRows (err) { 
+			return errors.Errorf("got a webhook about an email we've never messaged : %s : %s", email, messageId)
+		}
+
+		// we expect this to be empty
+		if email.MessageId.Valid() {
+			return errors.Errorf("we got a webhook from a missing message but the last user had a message id set: %s : %s : %s", userEmail, messageId, email.MessageId)
+		}
+
+		// update this email's message id for next time
+		email.MessageId.Set(messageId)
+		if err := this.Exec (ctx, nil, `UPDATE emails SET message_id = $2 WHERE id = $1`, email.Id, email.MessageId); err != nil {
+			return err 
+		}
+
+	} else if err != nil { 
+		return err // another error happened
+	}
 
 	// this have a specific priority
 	if status == EmailStatus_spamreport {

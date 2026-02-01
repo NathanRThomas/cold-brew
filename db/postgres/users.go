@@ -112,6 +112,16 @@ func (this *Coldbrew) UserFromBearer (ctx context.Context, bearer tools.String) 
 	return this.User (ctx, exists)
 }
 
+func (this *Coldbrew) UserFromEmail (ctx context.Context, email tools.String) (*User, error) {
+	var exists *uuid.UUID
+	err := this.DB.QueryRow (ctx, `SELECT id FROM users WHERE email = $1`, email).Scan (&exists)
+	
+	if this.ErrNoRows (err) { return nil, nil }
+	if err != nil { return nil, errors.WithStack(err) }
+
+	return this.User (ctx, exists)
+}
+
 // updates the mask for a user
 func (this *Coldbrew) UserSetMask (ctx context.Context, user *User, mask UserMask) error {
 	if user.Mask & mask == mask { return nil } // already good
@@ -172,16 +182,15 @@ func (this *Coldbrew) UsersMissing (ctx context.Context) ([]*User, error) {
 
 // from our webhooks this updates our email status
 // this might not match what's in this database, if not, then ignore it
-func (this *Coldbrew) UserUpdateStatus (ctx context.Context, email string, status string) error {
-	user := &User{}
-	err := this.DB.QueryRow (ctx, `SELECT id, mask FROM users WHERE email = $1`, email).Scan(&user.Id, &user.Mask)
-	if this.ErrNoRows (err) { return nil } // no big deal
-	if err != nil { return err } // another error happened
-
+func (this *Coldbrew) UserUpdateStatus (ctx context.Context, email tools.String, status string) error {
+	user, err := this.UserFromEmail (ctx, email)
+	if user == nil || err != nil { return err }
+	
 	// we have a user, let's update them
 	switch EmailStatus(status) {
 	case EmailStatus_processed:
 		// don't worry about this one
+		return nil
 	case EmailStatus_delivered:
 		return this.UserSetMask (ctx, user, UserMask_delivered)
 

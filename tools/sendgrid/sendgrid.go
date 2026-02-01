@@ -12,7 +12,6 @@ import (
 
 	"net/http"
 	"net/url"
-	"fmt"
 )
 
   //-----------------------------------------------------------------------------------------------------------------------//
@@ -107,7 +106,5 @@ func SendEmail (apiToken, email, category, subject, textBody, htmlBody, pool, fr
 		return errors.Wrapf(err, "%s", string(resp))
 	}
 
-	// DEBUG
-	fmt.Println("Sendgrid Response: ", string(resp))
 	return nil 
 }

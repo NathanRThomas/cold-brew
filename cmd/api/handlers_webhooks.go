@@ -56,14 +56,14 @@ func (this *app) sendgridPost (c *fiber.Ctx) error {
 			// for each piece of data we have some possible action items
 			// first let's give a report about this user
 			if event.Email.Email() {
-				this.StackTrace (ctx, this.db.UserUpdateStatus (ctx, event.Email.String(), event.Event.String()))
+				this.StackTrace (ctx, this.db.UserUpdateStatus (ctx, event.Email, event.Event.String()))
 			} else {
 				this.TraceErr (ctx, "we got an invalid email: %s", string(bodyBytes))
 			}
 
 			// now let's give a report about this email we sent
 			if event.Sg_message_id.Valid() {
-				this.StackTrace (ctx, this.db.EmailUpdateStatus (ctx, event.Sg_message_id.String(), postgres.EmailStatus(event.Event.String())))
+				this.StackTrace (ctx, this.db.EmailUpdateStatus (ctx, event.Email, event.Sg_message_id.String(), postgres.EmailStatus(event.Event.String())))
 			} else {
 				this.TraceErr (ctx, "we got an invalid sg_message_id: %s", string(bodyBytes))
 			}
