@@ -63,7 +63,7 @@ func (this *Coldbrew) Template (ctx context.Context, templateId *uuid.UUID) (*Te
 	template := &Template{}
 	err := this.DB.QueryRow (ctx, `SELECT id, body_html, body_text, subject, preview_text, attr, mask FROM templates 
 									WHERE id = $1`, templateId).Scan (&template.Id, &template.Html, 
-										&template.Body, &template.Subject, &template.Preview, &template.Mask)
+										&template.Body, &template.Subject, &template.Preview, &template.Attr, &template.Mask)
 	
 	if this.ErrNoRows (err) { return nil, nil }
 	return template, errors.WithStack(err)
