@@ -59,7 +59,7 @@ func (this *Template) GenerateHTMLBody () (string, error) {
 
 func (this *Template) GenerateSubject () string {
 	// some default things
-	shortDate := time.Now().Format("Jan 1")
+	shortDate := time.Now().Format("Jan 2")
 
 	subject := strings.ReplaceAll (this.Subject.String(), "{{ ShortDate }}", shortDate)
 
