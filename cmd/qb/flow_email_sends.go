@@ -61,6 +61,9 @@ func (this *flowEmailSend) emails (ctx context.Context) error {
 	// record this as sent in the database, so we don't keep sending the user emails
 	if err := this.db.EmailSent (ctx, email.Id); err != nil { return err }
 
+	// do a check to make sure this user hasn't changed their status, i don't think this should happen but wanted to check
+	if user.Mask & postgres.UserMask_doNotEmail > 0 { return nil } // just don't send it, mark the email as sent tho
+
 	// we're finally ready to send this
 	go func() { // this creates its own context, so just go with that
 		err := sendgrid.SendEmail (mailman.Attr.APIToken.String(), user.Email.String(), mailman.Attr.Category.String(),
