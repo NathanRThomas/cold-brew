@@ -39,6 +39,8 @@ var opts struct {
 
 var cfg struct {
 	cmd.CFG
+
+	ZeroBounce tools.String
 }
 
 
@@ -171,9 +173,13 @@ func main() {
 	wg := new(sync.WaitGroup)
 
 	// launch our task to check for new instant game combinations
+	var emailValidateFrequency tools.TimeDuration = 3 // pretty quick validate the email address with zero bounce
 	var emailSendFrequency tools.TimeDuration = 5 // pretty quick check for emails that need to be sent
 	var queEmailFrequency tools.TimeDuration = 60 // once a minute, look for emails that need to get queued
 	
+	wg.Add(1)
+	go app.FlowLaunchBlocking (wg, app.flowEmailValidate, emailValidateFrequency, cmd.ContextTimeout, "flowEmailValidate") // checks for emails that need to be validated
+
 	wg.Add(1)
 	go app.FlowLaunchBlocking (wg, app.flowEmailSend, emailSendFrequency, cmd.ContextTimeout, "flowEmailSend") // checks for emails that need to be sent
 

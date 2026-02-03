@@ -26,7 +26,7 @@ type UserMask int64
 const (
 	UserMask_deleted 			UserMask = 1 << iota 
 	UserMask_warmup 			// indicates this user is used to warm up new mailmen
-	UserMask_sent
+	_
 	UserMask_delivered
 
 	UserMask_open
@@ -127,7 +127,13 @@ func (this *Coldbrew) UserSetMask (ctx context.Context, user *User, mask UserMas
 	if user.Mask & mask == mask { return nil } // already good
 	user.Mask |= mask // update it in real-time
 	
-	return this.Exec (ctx, nil, `UPDATE users SET mask = mask | $1 WHERE id = $2`, mask, user.Id)
+	if err := this.Exec (ctx, nil, `UPDATE users SET mask = mask | $1 WHERE id = $2`, mask, user.Id); err != nil { return err }
+
+	// that worked, see if they should be disabled
+	if user.Mask & UserMask_doNotEmail > 0 {
+		return this.UserSetDisabled (ctx, user)
+	}
+	return nil // we're good
 }
 
 // removes a mask from the user
@@ -157,13 +163,30 @@ func (this *Coldbrew) UsersFromMask (ctx context.Context, mask UserMask) ([]*Use
 	return ret, nil
 }
 
-// returns just 10 users or so that haven't been emailed before
+// finds a user that needs to be validated
+func (this *Coldbrew) UserNotValidated (ctx context.Context) (*User, error) {
+	ret := &User{}
+	err := this.DB.QueryRow (ctx, `SELECT id, email, attr FROM users WHERE validated IS NULL AND disabled IS NULL limit 1`).Scan(
+		&ret.Id, &ret.Email, &ret.Attr)
+	if this.ErrNoRows (err) { return nil, nil }
+	return ret, errors.WithStack(err)
+}
+
+func (this *Coldbrew) UserSetValid (ctx context.Context, user *User) error {
+	return this.Exec (ctx, nil, `UPDATE users SET validated = NOW() WHERE id = $1`, user.Id)
+}
+
+func (this *Coldbrew) UserSetDisabled (ctx context.Context, user *User) error {
+	return this.Exec (ctx, nil, `UPDATE users SET disabled = NOW() WHERE id = $1`, user.Id)
+}
+
+// returns just a few users or so that haven't been emailed before
 func (this *Coldbrew) UsersMissing (ctx context.Context) ([]*User, error) {
 	rows, err := this.DB.Query (ctx, `SELECT id, email, attr 
 								FROM users 
-								WHERE disabled IS NULL AND id NOT IN 
+								WHERE disabled IS NULL AND validated IS NOT NULL AND id NOT IN 
 								(SELECT "user" FROM emails)
-								LIMIT 20`,)
+								LIMIT 20`) // only include validated emails
 	if err != nil { return nil, errors.WithStack(err) }
 	defer rows.Close()
 

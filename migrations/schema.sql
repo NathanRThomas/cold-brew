@@ -10,10 +10,12 @@ CREATE TABLE users (
     attr            JSONB NOT NULL DEFAULT '{}',
     mask            INT NOT NULL DEFAULT 0,
     disabled        TIMESTAMPTZ,
+    validated       TIMESTAMPTZ,
     created         TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_user_disabled ON users (disabled);
+CREATE INDEX idx_user_validated ON users (validated);
 
 CREATE TABLE mailmen (
     id              UUID NOT NULL PRIMARY KEY,
