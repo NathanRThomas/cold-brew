@@ -92,7 +92,8 @@ func (this *Coldbrew) MailmanSetMask (ctx context.Context, mailman *Mailman, mas
 // figures out the sending frequency based on past performance
 func (this *Coldbrew) MailmanPerformance (ctx context.Context, mailmanId *uuid.UUID) (time.Duration, error) {
 	rows, err := this.DB.Query (ctx, `SELECT COUNT(*), status, sent_time::date as sent 
-									FROM emails WHERE mailman = $1 AND sent_time IS NOT NULL GROUP BY sent, status ORDER BY sent LIMIT 150`, mailmanId)
+									FROM emails WHERE mailman = $1 AND sent_time IS NOT NULL 
+									GROUP BY sent, status ORDER BY sent DESC LIMIT 150`, mailmanId)
 	if err != nil { return 0, errors.WithStack(err) }
 	defer rows.Close()
 
