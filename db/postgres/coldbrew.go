@@ -46,12 +46,12 @@ func (this mailmanPerformances) duration () time.Duration {
     days := int(this[0].Sent.Sub(this[len(this)-1].Sent).Hours()) / 24 // covner this difference into days
     fmt.Println("mailman performance: days", days)
 
-    if days < 5 { return time.Hour } // less than 5 days, don't increase it
+    if days < 5 { return time.Minute * 30 } // less than 5 days, a little faster, ~50/day
 
     if days < 11 {
         // we have some data here, let's just increase a little, we should be able to do 100 or so per day even if they're "bad"
         // 100 / 24 ~ 4
-        return time.Minute * 15 // so 1 every 15 mintues
+        return time.Minute * 15 // so 1 every 15 mintues ~ 100/day
     }
 
     // let's have some fun, let's look at overall sends, compared to "bad" things
