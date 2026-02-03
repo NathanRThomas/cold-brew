@@ -78,22 +78,22 @@ func (this mailmanPerformances) duration () time.Duration {
         return time.Hour
     }
 
-    if float64(bads) / float64(sends) > 0.15 {
+    if float64(bads) / float64(sends) > 0.15 || good < 60 {
         fmt.Println("mailman performance: bad sends ratio", float64(bads) / float64(sends))
         return time.Minute * 15 // (60 / 15) * 24 = 96 slow it down
     }
 
-    if float64(bads) / float64(sends) > 0.1 {
+    if float64(bads) / float64(sends) > 0.1 || good < 100 {
         fmt.Println("mailman performance: bad sends ratio", float64(bads) / float64(sends))
         return time.Minute * 12 // (60 / 12) * 24 = 120
     }
 
-    if float64(bads) / float64(sends) > 0.5 {
+    if float64(bads) / float64(sends) > 0.5 || good < 200 {
         fmt.Println("mailman performance: bad sends ratio", float64(bads) / float64(sends))
         return time.Minute * 6 // (60 / 6) * 24 = 240
     }
 
-    if float64(bads) / float64(sends) > 0.02 {
+    if float64(bads) / float64(sends) > 0.02 || good < 400 {
         fmt.Println("mailman performance: bad sends ratio", float64(bads) / float64(sends))
         return time.Minute * 3 // (60 / 3) * 24 = 480
     }

@@ -189,11 +189,11 @@ func (this *Coldbrew) UsersMissing (ctx context.Context) ([]*User, error) {
 								FROM users 
 								WHERE disabled IS NULL AND validated IS NOT NULL AND id NOT IN 
 								(SELECT "user" FROM emails)
-								LIMIT 20`) // only include validated emails
+								LIMIT 50`) // only include validated emails
 	if err != nil { return nil, errors.WithStack(err) }
 	defer rows.Close()
 
-	ret := make([]*User, 0, 10)
+	ret := make([]*User, 0, 50)
 
 	for rows.Next() {
 		user := &User{}
