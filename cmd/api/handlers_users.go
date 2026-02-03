@@ -17,7 +17,7 @@ import (
 //-----------------------------------------------------------------------------------------------------------------------//
 
 type userPutRequest struct {
-	Warmup bool
+	Warmup, SkipValidation bool
 	Emails tools.StringList
 }
 
@@ -50,7 +50,7 @@ func (this *app) userPut (c *fiber.Ctx) error {
 		return nil
 	}
 
-	resp, err := this.api.AddUsers (ctx, data.Warmup, data.Emails)
+	resp, err := this.api.AddUsers (ctx, data.Warmup, data.Emails, data.SkipValidation)
 
 	return this.Respond (ctx, err, c, resp)
 }

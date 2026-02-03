@@ -88,14 +88,17 @@ func (this *Coldbrew) User (ctx context.Context, userId *uuid.UUID) (*User, erro
 	return user, errors.WithStack(err)
 }
 
-func (this *Coldbrew) UserInsert (ctx context.Context, warmup bool, email tools.String) error {
+func (this *Coldbrew) UserInsert (ctx context.Context, warmup bool, email tools.String, skipValidation bool) error {
 	user := &User {
 		Email: email,
 	}
 	user.init()
 	if warmup { user.Mask |= UserMask_warmup }
 
-	err := this.Exec (ctx, nil, `INSERT INTO users (id, email, token, mask) VALUES ($1, $2, $3, $4)`,
+	validated := " NULL "
+	if skipValidation { validated = " NOW() "}
+
+	err := this.Exec (ctx, nil, `INSERT INTO users (id, email, token, mask, validated) VALUES ($1, $2, $3, $4, ` + validated + `)`,
 						user.Id, user.Email, user.Token, user.Mask)
 	if this.ErrUniqueConstraint (err) { return nil } // don't record this error
 	return err

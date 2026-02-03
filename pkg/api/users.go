@@ -23,9 +23,9 @@ import (
  //----- USERS -----------------------------------------------------------------------------------------------------------//
 //-----------------------------------------------------------------------------------------------------------------------//
 
-func (this *API) AddUsers (ctx context.Context, warmup bool, emails tools.StringList) (interface{}, error) {
+func (this *API) AddUsers (ctx context.Context, warmup bool, emails tools.StringList, skipValidation bool) (interface{}, error) {
 	for _, email := range emails {
-		if err := this.db.UserInsert (ctx, warmup, email); err != nil { return nil, err }
+		if err := this.db.UserInsert (ctx, warmup, email, skipValidation); err != nil { return nil, err }
 	}
 	return nil, nil
 }
