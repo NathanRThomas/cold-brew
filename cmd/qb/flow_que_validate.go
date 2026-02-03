@@ -27,6 +27,11 @@ type flowEmailValidate struct {
 // validates the user's email
 func (this *flowEmailValidate) validateUser (ctx context.Context, user *postgres.User) error {
 
+	// make sure this email appears valid before we even bother with zerobounce
+	if user.Email.Email() == false {
+		return this.db.UserSetDisabled (ctx, user) // disable them, they're not good
+	}
+
 	// validate this with our bounce config
 	if cfg.ZeroBounce.Valid() {
 		valid, err := zerobounce.ValidateEmail (ctx, cfg.ZeroBounce.String(), user.Email.String())

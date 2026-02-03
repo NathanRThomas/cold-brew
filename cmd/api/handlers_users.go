@@ -27,12 +27,6 @@ func (this *userPutRequest) ValidInput () error {
 		return errors.Wrap (logging.ErrReturnToUser, "no emails found")
 	}
 
-	for _, email := range this.Emails {
-		if email.Email() == false {
-			return errors.Wrapf (logging.ErrReturnToUser, "Email '%s' appears invalid", email)
-		}
-	}
-
 	return nil // we're good
 }
 
