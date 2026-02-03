@@ -10,7 +10,6 @@ import (
 	
 	"github.com/pkg/errors"
 
-	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -42,9 +41,13 @@ func (this *zeroBounceResponse) isValid() bool {
 func ValidateEmail (ctx context.Context, apiToken, email string) (bool, error) {
 	out := &zeroBounceResponse{}
 
+	params := make(url.Values)
+	params.Add("api_key", apiToken)
+	params.Add("verify_plus", "false")
+	params.Add("email", email)
+
 	resp, err := tools.MicroSend (ctx, http.MethodGet, 
-		fmt.Sprintf("https://api.zerobounce.net/v2/validate?api_key=%s&verify_plus=false&email=%s", apiToken, email), 
-		make(http.Header), make(url.Values), nil, out)
+		"https://api.zerobounce.net/v2/validate", make(http.Header), params, nil, out)
 	if err != nil {
 		return false, errors.Wrapf(err, "%s", string(resp))
 	}
