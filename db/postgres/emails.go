@@ -154,6 +154,12 @@ func (this *Coldbrew) EmailUpdateStatus (ctx context.Context, userEmail tools.St
 		return nil // we're done
 	}
 
+	if status == EmailStatus_bounce {
+		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
+	} else if email.Status == EmailStatus_bounce {
+		return nil // we're done
+	}
+
 	if status == EmailStatus_dropped {
 		return this.emailSetStatus (ctx, email, EmailStatus(status)) // this always wins
 	} else if email.Status == EmailStatus_dropped {
