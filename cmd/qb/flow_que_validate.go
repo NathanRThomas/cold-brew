@@ -34,8 +34,16 @@ func (this *flowEmailValidate) validateUser (ctx context.Context, user *postgres
 
 	// validate this with our bounce config
 	if cfg.ZeroBounce.Valid() {
-		valid, err := zerobounce.ValidateEmail (ctx, cfg.ZeroBounce.String(), user.Email.String())
+		valid, typo, err := zerobounce.ValidateEmail (ctx, cfg.ZeroBounce.String(), user.Email.String())
 		if err != nil { return err }
+
+		if valid == false && len(typo) > 0 {
+			// we think there was a typo, so let's just update this user's email
+			user.Email.Set(typo)
+			if err := this.db.UserUpdate (ctx, user); err != nil { return err }
+
+			valid = true // let's just say they're valid now
+		}
 
 		if valid {
 			return this.db.UserSetValid (ctx, user) // they're good

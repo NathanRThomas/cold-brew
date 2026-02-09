@@ -104,6 +104,10 @@ func (this *Coldbrew) UserInsert (ctx context.Context, warmup bool, email tools.
 	return err
 }
 
+func (this *Coldbrew) UserUpdate (ctx context.Context, user *User) error {
+	return this.Exec (ctx, nil, `UPDATE users SET email = $2 WHERE id = $1`, user.Id, user.Email)
+}
+
 // finds the user based on their bearer token
 func (this *Coldbrew) UserFromBearer (ctx context.Context, bearer tools.String) (*User, error) {
 	var exists *uuid.UUID
