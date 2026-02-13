@@ -39,6 +39,9 @@ type mailmanPerformances []*mailmanPerformance
 //-----------------------------------------------------------------------------------------------------------------------//
 
 func (this mailmanPerformances) duration () time.Duration {
+    if true {
+        return time.Minute * 10 // just for now. need to get something out
+    }
     // see how many dates we have
     // these should already be in order of date
     if len(this) < 2 { return time.Hour } // we don't have any data, so send them once an hour
