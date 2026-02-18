@@ -50,6 +50,8 @@ func (this *Template) CacheTime () tools.TimeDuration {
 }
 
 func (this *Template) GenerateTextBody (baseUrl string, user *User) (string, error) {
+	if this.Body.Valid() == false { return "", nil } // no text here
+
 	data := make(map[string]string)
 	data["BaseUrl"] = baseUrl
 	data["UserToken"] = user.Token.String()
@@ -58,6 +60,8 @@ func (this *Template) GenerateTextBody (baseUrl string, user *User) (string, err
 }
 
 func (this *Template) GenerateHTMLBody (baseUrl string, user *User) (string, error) {
+	if this.Html.Valid() == false { return "", nil } // no html here
+
 	data := make(map[string]string)
 	data["BaseUrl"] = baseUrl
 	data["UserToken"] = user.Token.String()
