@@ -69,7 +69,7 @@ func SendEmail (apiToken, email, category, subject, textBody, htmlBody, pool, fr
 		Tracking sendgridTracking `json:"tracking_settings"`
 		Content []sendgridContent `json:"content"`
 		Categories []string `json:"categories"`
-		Pool string `json:"ip_pool_name"`
+		Pool string `json:"ip_pool_name,omitempty"`
 	}
 
 	req.From.Email = fromEmail
